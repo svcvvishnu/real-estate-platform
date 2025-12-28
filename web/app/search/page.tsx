@@ -2,13 +2,14 @@ import { prisma } from "@/lib/prisma";
 import SearchFilters from "@/components/property/search-filters";
 import PropertyCard from "@/components/property/property-card";
 import { PropertyType } from "@prisma/client";
+import NavControls from "@/components/layout/nav-controls";
 
 export default async function SearchPage({
     searchParams,
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-    const resolvedSearchParams = await searchParams; // Await the searchParams object (Next.js 15+ requirement)
+    const resolvedSearchParams = await searchParams;
 
     const q = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : undefined;
     const type = typeof resolvedSearchParams.type === "string" && Object.values(PropertyType).includes(resolvedSearchParams.type as PropertyType)
@@ -18,14 +19,13 @@ export default async function SearchPage({
     const minPrice = typeof resolvedSearchParams.minPrice === "string" ? parseFloat(resolvedSearchParams.minPrice) : undefined;
     const maxPrice = typeof resolvedSearchParams.maxPrice === "string" ? parseFloat(resolvedSearchParams.maxPrice) : undefined;
 
-    // Build Prisma Query
     const where: any = {
         status: "APPROVED",
     };
 
     if (q) {
         where.OR = [
-            { title: { contains: q } }, // Removed mode: 'insensitive' for compatibility. Default is effectively case-insensitive in many SQLite setups or adjust if using Postgres
+            { title: { contains: q } },
             { description: { contains: q } },
             { address: { contains: q } }
         ];
@@ -54,17 +54,16 @@ export default async function SearchPage({
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 py-8">
+                <NavControls />
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Browse Verified Properties</h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Filters Sidebar */}
                     <aside className="w-full lg:w-64 flex-shrink-0">
                         <div className="lg:sticky lg:top-8">
                             <SearchFilters />
                         </div>
                     </aside>
 
-                    {/* Results Grid */}
                     <main className="flex-1">
                         {properties.length === 0 ? (
                             <div className="bg-white p-12 rounded-lg shadow text-center">

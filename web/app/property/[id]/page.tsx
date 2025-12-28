@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Ruler, Home, Phone, User } from "lucide-react";
+import NavControls from "@/components/layout/nav-controls";
 
 export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -38,9 +39,9 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
         return (
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="text-center">
+                    <NavControls />
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Property Not Available</h1>
                     <p className="text-gray-600">This property is currently under review or has been removed.</p>
-                    <Link href="/search" className="text-blue-600 hover:underline mt-4 inline-block">Back to Search</Link>
                 </div>
             </div>
         );
@@ -55,10 +56,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-                <Link href="/search" className="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Search
-                </Link>
+                <NavControls />
 
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                     {/* Image Gallery (Simplified for MVP - Just showing list of images) */}
@@ -102,7 +100,6 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                                 <div className="text-sm text-gray-500">Type</div>
                                 <div className="font-semibold capitalize">{property.type.toLowerCase()}</div>
                             </div>
-                            {/* Placeholder for Bed/Bath if added later */}
                         </div>
 
                         <div className="mt-8">

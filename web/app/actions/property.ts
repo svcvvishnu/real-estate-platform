@@ -22,20 +22,26 @@ export async function createProperty(formData: FormData) {
     const session = await auth();
     if (!session?.user?.id) return { error: "Unauthorized" };
 
+    console.log("createProperty called with formData keys:", Array.from(formData.keys()));
+
+    const getField = (name: string) => formData.get(name) || formData.get(`1_${name}`);
+
     const validatedFields = PropertySchema.safeParse({
-        title: formData.get("title"),
-        description: formData.get("description"),
-        price: formData.get("price"),
-        area: formData.get("area"),
-        type: formData.get("type"),
-        address: formData.get("address"),
+        title: getField("title"),
+        description: getField("description"),
+        price: getField("price"),
+        area: getField("area"),
+        type: getField("type"),
+        address: getField("address"),
     });
 
     if (!validatedFields.success) {
+        console.log("Validation failed:", validatedFields.error.format());
         return { error: "Invalid fields" };
     }
 
-    const files = formData.getAll("images") as File[];
+    const files = (formData.getAll("images").length > 0 ? formData.getAll("images") : formData.getAll("1_images")) as File[];
+    console.log(`Found ${files.length} images`);
     const imageUrls: string[] = [];
 
     // Handle Image Uploads

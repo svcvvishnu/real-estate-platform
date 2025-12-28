@@ -35,21 +35,13 @@ export default async function DashboardPage() {
             <nav className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex items-center">
+                        <Link href="/dashboard" className="flex items-center">
                             <h1 className="text-xl font-bold text-gray-800">Real Estate Trust</h1>
-                        </div>
+                        </Link>
                         <div className="flex items-center">
-                            <span className="mr-4 text-sm text-gray-600">
+                            <span className="text-sm text-gray-600">
                                 {user.mobile} ({user.role})
                             </span>
-                            <form action={async () => {
-                                "use server";
-                                await signOut();
-                            }}>
-                                <button type="submit" className="text-gray-500 hover:text-gray-700">
-                                    <LogOut className="h-5 w-5" />
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -57,6 +49,60 @@ export default async function DashboardPage() {
 
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div className="px-4 py-6 sm:px-0">
+
+                    {/* Navigation Tiles */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <Link
+                            href="/search"
+                            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow group border border-transparent hover:border-blue-500"
+                        >
+                            <div className="flex items-center space-x-4">
+                                <div className="bg-blue-100 p-3 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Browse Properties</h3>
+                                    <p className="text-sm text-gray-500">Find your dream home</p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/sell"
+                            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow group border border-transparent hover:border-green-500"
+                        >
+                            <div className="flex items-center space-x-4">
+                                <div className="bg-green-100 p-3 rounded-lg group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">List Property</h3>
+                                    <p className="text-sm text-gray-500">Sell or lease your estate</p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        <form action={async () => {
+                            "use server";
+                            await signOut();
+                        }} className="h-full">
+                            <button type="submit" className="w-full text-left h-full bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow group border border-transparent hover:border-red-500">
+                                <div className="flex items-center space-x-4">
+                                    <div className="bg-red-100 p-3 rounded-lg group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                        <LogOut className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Logout</h3>
+                                        <p className="text-sm text-gray-500">Sign out of your account</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
 
                     {/* Status Card */}
                     <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
@@ -94,14 +140,8 @@ export default async function DashboardPage() {
 
                     {/* Properties or Other Content */}
                     <div className="bg-white overflow-hidden shadow rounded-lg">
-                        <div className="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
+                        <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">My Properties</h3>
-                            <Link
-                                href="/dashboard/sell"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-                            >
-                                List New Property
-                            </Link>
                         </div>
                         <div className="px-4 py-5 sm:p-6">
                             {user.properties.length === 0 ? (
