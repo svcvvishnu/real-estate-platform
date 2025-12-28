@@ -24,10 +24,14 @@ Vercel is the creator of Next.js and provides the most seamless deployment exper
 ### 3. Deploy to Vercel
 - Sign in to [Vercel](https://vercel.com/) and click **"New Project"**.
 - Import your repository.
+- **IMPORTANT: Root Directory**: Since your app is inside the `web` folder, you must set the **Root Directory** to `web` in the Vercel project settings during the import step.
 - **Environment Variables**: Add the following in the Vercel dashboard:
   - `DATABASE_URL`: Your production database connection string.
   - `AUTH_SECRET`: A random string (generate one with `openssl rand -base64 32`).
-  - `NEXTAUTH_URL`: Your production domain (e.g., `https://your-app.vercel.app`).
+  - `NEXTAUTH_URL`: Your production domain. After your first deployment to Vercel, you will see a URL like `https://real-estate-platform-abc.vercel.app`. Copy that URL and add it to your Environment Variables.
+
+> [!TIP]
+> On Vercel, if you don't set `NEXTAUTH_URL`, it often automatically uses your deployment URL, but setting it explicitly is safer for custom domains.
 
 ### 4. Build and Launch
 - Click **Deploy**. Vercel will automatically build the project and run migrations if you add a `postinstall` script in `package.json`: 
