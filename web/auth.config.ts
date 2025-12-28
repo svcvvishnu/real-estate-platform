@@ -7,26 +7,22 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
-            const isProtectedRoute = nextUrl.pathname.startsWith("/dashboard") ||
-                nextUrl.pathname.startsWith("/admin") ||
-                nextUrl.pathname.startsWith("/kyc");
+            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+            const isOnAdmin = nextUrl.pathname.startsWith("/admin");
+            const isOnKYC = nextUrl.pathname.startsWith("/kyc");
 
-            const isAuthRoute = nextUrl.pathname.startsWith("/login") ||
-                nextUrl.pathname.startsWith("/register");
+            const isProtectedRoute = isOnDashboard || isOnAdmin || isOnKYC;
 
             if (isProtectedRoute) {
                 if (isLoggedIn) return true;
                 return false; // Redirect unauthenticated users to login page
             }
 
-            if (isAuthRoute) {
-                if (isLoggedIn) {
-                    return Response.redirect(new URL("/dashboard", nextUrl));
-                }
-                return true;
+            if (isLoggedIn && (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
+                return Response.redirect(new URL("/dashboard", nextUrl));
             }
 
-            return true; // Allow public routes
+            return true;
         },
         async jwt({ token, user }) {
             if (user) {

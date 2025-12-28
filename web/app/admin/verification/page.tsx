@@ -10,9 +10,10 @@ import { User, FileText, Home as HomeIcon } from "lucide-react";
 
 export default async function AdminVerificationPage() {
     const session = await auth();
-    if (!session?.user?.id) redirect("/login");
+    // Redirect handled by middleware
+    const userId = session?.user?.id;
 
-    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    const user = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
 
     if (user?.role !== "ADMIN" && user?.role !== "VERIFICATION_TEAM") {
         return <div className="p-10 text-red-600">Access Denied. Admins only.</div>;

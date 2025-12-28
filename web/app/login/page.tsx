@@ -4,9 +4,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
-    const session = await auth();
-    if (session) redirect("/dashboard");
-
+    // Redirection handled by middleware in auth.config.ts
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
             <div className="w-full max-w-md space-y-8 bg-white p-8 shadow-lg rounded-xl">

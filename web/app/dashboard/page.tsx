@@ -6,24 +6,38 @@ import { LogOut, Home, Search, Heart } from "lucide-react";
 
 export default async function DashboardPage() {
     const session = await auth();
-
-    if (!session?.user?.id) {
-        redirect("/login");
-    }
+    const userId = session?.user?.id;
 
     // Fetch latest user data
-    const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
+    const user = userId ? await prisma.user.findUnique({
+        where: { id: userId },
         include: {
             kycProfile: true,
             properties: {
                 orderBy: { createdAt: 'desc' },
-                include: { images: true, updates: true }
+                include: { images: true }
             }
         }
-    });
+    }) : null;
 
-    if (!user) return <div>User not found</div>;
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Session Error</h2>
+                    <p className="text-gray-600 mb-4">We couldn't load your profile. Please sign in again.</p>
+                    <form action={async () => {
+                        "use server";
+                        await signOut();
+                    }}>
+                        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 transition">
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
 
     // Redirect Admins to Verification Portal
     if (user.role === "ADMIN" || user.role === "VERIFICATION_TEAM") {
