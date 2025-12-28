@@ -4,11 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { put } from "@vercel/blob";
 
-const UPLOAD_DIR = join(process.cwd(), "public/uploads/properties");
-
+// Vercel Blob doesn't need local UPLOAD_DIR
 const PropertySchema = z.object({
     title: z.string().min(5, "Title must be at least 5 chars"),
     description: z.string().min(10, "Description must be at least 10 chars"),
@@ -47,17 +45,13 @@ export async function createProperty(formData: FormData) {
     // Handle Image Uploads
     if (files.length > 0) {
         try {
-            await mkdir(UPLOAD_DIR, { recursive: true });
-
             for (const file of files) {
                 if (file.size > 0 && file.name !== "undefined") {
-                    const bytes = await file.arrayBuffer();
-                    const buffer = Buffer.from(bytes);
-                    const filename = `${session.user.id}-${Date.now()}-${file.name.replace(/\s/g, '-')}`;
-                    const filepath = join(UPLOAD_DIR, filename);
-
-                    await writeFile(filepath, buffer);
-                    imageUrls.push(`/uploads/properties/${filename}`);
+                    // Upload to Vercel Blob
+                    const blob = await put(`properties/${session.user.id}-${Date.now()}-${file.name.replace(/\s/g, '-')}`, file, {
+                        access: 'public',
+                    });
+                    imageUrls.push(blob.url);
                 }
             }
         } catch (err) {

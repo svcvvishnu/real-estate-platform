@@ -4,13 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { writeFile } from "fs/promises";
-import { join } from "path";
-import { mkdir } from "fs/promises";
+import { put } from "@vercel/blob";
 
-// Ensure upload directory exists
-const UPLOAD_DIR = join(process.cwd(), "public/uploads/kyc");
-
+// Vercel Blob doesn't need local UPLOAD_DIR
 const KYCSchema = z.object({
     fullName: z.string().min(2, "Full Name is required"),
     email: z.string().email("Invalid email address"),
@@ -38,22 +34,13 @@ export async function submitKYC(formData: FormData) {
         return { error: "Document upload is required" };
     }
 
-    // Handle File Upload (Local Storage for MVP)
-    // In production, upload to S3/Blob and get URL
     try {
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+        // Upload to Vercel Blob
+        const blob = await put(`kyc/${session.user.id}-${Date.now()}-${file.name}`, file, {
+            access: 'public',
+        });
 
-        // Create unique filename
-        const filename = `${session.user.id}-${Date.now()}-${file.name}`;
-        const filepath = join(UPLOAD_DIR, filename);
-        const publicUrl = `/uploads/kyc/${filename}`;
-
-        // Ensure dir exists
-        await mkdir(UPLOAD_DIR, { recursive: true });
-
-        // Write file
-        await writeFile(filepath, buffer);
+        const publicUrl = blob.url;
 
         // Create KYC Profile & Update User Status
         await prisma.$transaction([
