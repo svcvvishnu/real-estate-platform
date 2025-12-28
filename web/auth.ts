@@ -5,10 +5,15 @@ import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { authConfig } from "./auth.config"
 
-async function getUser(mobile: string) {
+async function getUser(identifier: string) {
     try {
-        const user = await prisma.user.findUnique({
-            where: { mobile },
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { mobile: identifier },
+                    { email: identifier },
+                ],
+            },
         })
         return user
     } catch (error) {
@@ -23,7 +28,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Credentials({
             async authorize(credentials) {
                 const parsedCredentials = z
-                    .object({ mobile: z.string().min(10), password: z.string().min(6) })
+                    .object({
+                        mobile: z.string().min(4), // Renamed identifier in form but using same key for compatibility or updating form next
+                        password: z.string().min(6)
+                    })
                     .safeParse(credentials)
 
                 if (parsedCredentials.success) {

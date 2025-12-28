@@ -41,6 +41,7 @@ enum PropertyStatus {
 model User {
   id            String    @id @default(cuid())
   mobile        String    @unique
+  email         String?   @unique
   password      String?   // Hashed password (or null if using pure OTP later)
   name          String?
   role          UserRole  @default(BUYER)

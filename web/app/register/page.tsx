@@ -39,9 +39,38 @@ export default function RegisterPage() {
                                 name="mobile"
                                 type="tel"
                                 required
-                                className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                                className="relative block w-full rounded-t-md border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
                                 placeholder="Mobile Number"
                             />
+                        </div>
+                        <div>
+                            <label htmlFor="email" className="sr-only">
+                                Email Address (Optional)
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                className="relative block w-full border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                                placeholder="Email Address (Optional)"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="role" className="sr-only">
+                                Account Type
+                            </label>
+                            <select
+                                id="role"
+                                name="role"
+                                required
+                                className="relative block w-full border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3 appearance-none bg-white"
+                            >
+                                <option value="" disabled selected>Select Account Type</option>
+                                <option value="BUYER">Buyer</option>
+                                <option value="SELLER">Seller</option>
+                                <option value="ADMIN">Admin</option>
+                                <option value="VERIFICATION_TEAM">Verification Team</option>
+                            </select>
                         </div>
                         <div>
                             <label htmlFor="password" className="sr-only">
@@ -53,7 +82,7 @@ export default function RegisterPage() {
                                 type="password"
                                 required
                                 minLength={6}
-                                className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                                className="relative block w-full rounded-b-md border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
                                 placeholder="Set Password"
                             />
                         </div>

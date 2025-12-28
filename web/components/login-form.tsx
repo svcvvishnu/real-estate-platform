@@ -50,16 +50,16 @@ export default function LoginForm() {
             <div className="-space-y-px rounded-md shadow-sm">
                 <div>
                     <label htmlFor="mobile" className="sr-only">
-                        Mobile Number
+                        Mobile or Email
                     </label>
                     <input
                         id="mobile"
                         name="mobile"
-                        type="tel"
+                        type="text"
                         required
                         disabled={loading}
-                        className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3 disabled:opacity-50"
-                        placeholder="Mobile Number"
+                        className="relative block w-full rounded-t-md border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3 disabled:opacity-50"
+                        placeholder="Mobile or Email"
                     />
                 </div>
                 <div>
@@ -72,7 +72,7 @@ export default function LoginForm() {
                         type="password"
                         required
                         disabled={loading}
-                        className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3 disabled:opacity-50"
+                        className="relative block w-full rounded-b-md border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3 disabled:opacity-50"
                         placeholder="Password"
                     />
                 </div>
