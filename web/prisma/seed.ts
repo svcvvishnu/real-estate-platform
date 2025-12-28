@@ -40,8 +40,9 @@ async function main() {
             where: { mobile: u.mobile },
             update: {
                 role: u.role,
-                kycStatus: u.kycStatus, // Ensure they are KYC approved for ease of testing
+                kycStatus: u.kycStatus,
                 name: u.name,
+                password, // Add password to update block to reset it on seed
             },
             create: {
                 mobile: u.mobile,

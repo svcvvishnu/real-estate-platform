@@ -20,24 +20,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [
         Credentials({
             async authorize(credentials) {
+                console.log("Authorize called with:", credentials)
                 const parsedCredentials = z
                     .object({ mobile: z.string().min(10), password: z.string().min(6) })
                     .safeParse(credentials)
 
                 if (parsedCredentials.success) {
                     const { mobile, password } = parsedCredentials.data
+                    console.log("Searching for user with mobile:", mobile)
                     const user = await getUser(mobile)
-                    if (!user) return null
+                    if (!user) {
+                        console.log("User not found for mobile:", mobile)
+                        return null
+                    }
+                    console.log("User found:", user.mobile, "Role:", user.role)
 
-                    // For MVP demo where users are created via our form with 'password'
-                    // We will mock OTP by using a simple password match for now.
                     if (user.password) {
                         const passwordsMatch = await bcrypt.compare(password, user.password)
+                        console.log("Password match result:", passwordsMatch)
                         if (passwordsMatch) return user
+                    } else {
+                        console.log("User has no password set")
                     }
+                } else {
+                    console.log("Credential validation failed:", parsedCredentials.error.format())
                 }
 
-                console.log("Invalid credentials")
+                console.log("Invalid credentials - returning null")
                 return null
             },
         }),
