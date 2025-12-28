@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
+import { Suspense } from "react";
 import SearchFilters from "@/components/property/search-filters";
-import PropertyCard from "@/components/property/property-card";
+import PropertyGrid, { PropertyGridSkeleton } from "@/components/property/property-grid";
 import { PropertyType } from "@prisma/client";
 import NavControls from "@/components/layout/nav-controls";
 import { auth } from "@/auth";
@@ -22,39 +22,6 @@ export default async function SearchPage({
     const minPrice = typeof resolvedSearchParams.minPrice === "string" ? parseFloat(resolvedSearchParams.minPrice) : undefined;
     const maxPrice = typeof resolvedSearchParams.maxPrice === "string" ? parseFloat(resolvedSearchParams.maxPrice) : undefined;
 
-    const where: any = {
-        status: "APPROVED",
-    };
-
-    if (q) {
-        where.OR = [
-            { title: { contains: q } },
-            { description: { contains: q } },
-            { address: { contains: q } }
-        ];
-    }
-
-    if (type) {
-        where.type = type;
-    }
-
-    if (minPrice !== undefined || maxPrice !== undefined) {
-        where.price = {};
-        if (minPrice !== undefined) where.price.gte = minPrice;
-        if (maxPrice !== undefined) where.price.lte = maxPrice;
-    }
-
-    const properties = await prisma.property.findMany({
-        where,
-        include: {
-            images: true,
-            ...(userId ? { shortlists: { where: { userId } } } : {}),
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
-
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -69,18 +36,15 @@ export default async function SearchPage({
                     </aside>
 
                     <main className="flex-1">
-                        {properties.length === 0 ? (
-                            <div className="bg-white p-12 rounded-lg shadow text-center">
-                                <h3 className="text-xl font-medium text-gray-900 mb-2">No properties found</h3>
-                                <p className="text-gray-500">Try adjusting your search filters.</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {properties.map((property) => (
-                                    <PropertyCard key={property.id} property={property} />
-                                ))}
-                            </div>
-                        )}
+                        <Suspense key={`${q}-${type}-${minPrice}-${maxPrice}`} fallback={<PropertyGridSkeleton />}>
+                            <PropertyGrid
+                                q={q}
+                                type={type}
+                                minPrice={minPrice}
+                                maxPrice={maxPrice}
+                                userId={userId}
+                            />
+                        </Suspense>
                     </main>
                 </div>
             </div>

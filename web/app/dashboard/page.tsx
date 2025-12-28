@@ -3,22 +3,26 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { LogOut, Home, Search, Heart } from "lucide-react";
+import { Suspense } from "react";
+import UserProperties, { UserPropertiesSkeleton } from "@/components/property/user-properties";
 
 export default async function DashboardPage() {
     const session = await auth();
     const userId = session?.user?.id;
 
-    // Fetch latest user data
-    const user = userId ? await prisma.user.findUnique({
+    if (!userId) {
+        redirect("/login");
+    }
+
+    // Fetch minimal user data for the layout
+    const user = await prisma.user.findUnique({
         where: { id: userId },
-        include: {
-            kycProfile: true,
-            properties: {
-                orderBy: { createdAt: 'desc' },
-                include: { images: true }
-            }
+        select: {
+            mobile: true,
+            role: true,
+            kycStatus: true,
         }
-    }) : null;
+    });
 
     if (!user) {
         return (
@@ -167,58 +171,15 @@ export default async function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Properties or Other Content */}
+                    {/* Properties Content */}
                     <div className="bg-white overflow-hidden shadow rounded-lg">
                         <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 className="text-lg leading-6 font-medium text-gray-900">My Properties</h3>
                         </div>
                         <div className="px-4 py-5 sm:p-6">
-                            {user.properties.length === 0 ? (
-                                <div className="text-center py-10 border-2 border-dashed border-gray-300 rounded-md">
-                                    <p className="text-gray-500">You haven&apos;t listed any properties yet.</p>
-                                </div>
-                            ) : (
-                                <ul className="divide-y divide-gray-200">
-                                    {user.properties.map((property: any) => (
-                                        <li key={property.id} className="py-4 flex justify-between">
-                                            <div className="flex">
-                                                {property.images[0] ? (
-                                                    <img src={property.images[0].url} alt={property.title} className="h-16 w-16 rounded object-cover mr-4" />
-                                                ) : (
-                                                    <div className="h-16 w-16 bg-gray-200 rounded mr-4 flex items-center justify-center text-xs text-gray-500">No Img</div>
-                                                )}
-                                                <div>
-                                                    <h4 className="text-sm font-medium text-gray-900">{property.title}</h4>
-                                                    <p className="text-sm text-gray-500">{property.type} • ₹{property.price.toLocaleString()}</p>
-                                                    <p className="text-xs text-gray-400">{property.address}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col items-end justify-center space-y-2">
-                                                <span className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full 
-                                            ${property.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                                                        property.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                            property.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                    {property.status}
-                                                </span>
-                                                {property.updates?.status === 'PENDING' && (
-                                                    <span className="inline-flex px-2 text-[10px] font-semibold leading-5 rounded-full bg-blue-100 text-blue-800">
-                                                        PENDING UPDATE
-                                                    </span>
-                                                )}
-                                                <Link
-                                                    href={`/dashboard/edit/${property.id}`}
-                                                    className="text-xs text-blue-600 hover:text-blue-500 font-medium"
-                                                >
-                                                    Edit Details
-                                                </Link>
-                                                {property.status === 'REJECTED' && (
-                                                    <p className="text-xs text-red-500">{property.rejectionReason}</p>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            <Suspense fallback={<UserPropertiesSkeleton />}>
+                                <UserProperties userId={userId} />
+                            </Suspense>
                         </div>
                     </div>
 

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Property, PropertyImage, Shortlist } from "@prisma/client";
 import ShortlistButton from "./shortlist-button";
@@ -10,7 +11,7 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-    const mainImage = property.images[0]?.url || "/placeholder-property.jpg";
+    const mainImage = property.images[0]?.url;
     const formattedPrice = new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
@@ -24,11 +25,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <Link href={`/property/${property.id}`} className="block">
                 {/* Image Aspect Ratio Container */}
                 <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
-                    {property.images[0] ? (
-                        <img
+                    {mainImage ? (
+                        <Image
                             src={mainImage}
                             alt={property.title}
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            priority={false}
                         />
                     ) : (
                         <div className="flex items-center justify-center h-full text-gray-400">
