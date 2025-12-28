@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+  VERIFICATION_TEAM
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  NOT_SUBMITTED
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  LAND
+  COMMERCIAL
+}
+
+enum PropertyStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  SOLD
+}
+
+// Models
+model User {
+  id            String    @id @default(cuid())
+  mobile        String    @unique
+  password      String?   // Hashed password (or null if using pure OTP later)
+  name          String?
+  role          UserRole  @default(BUYER)
+  kycStatus     KYCStatus @default(NOT_SUBMITTED)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  kycProfile    KYCProfile?
+  properties    Property[]
+}
+
+model KYCProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  fullName        String
+  email           String
+  governmentIdType String   // Aadhaar, PAN, etc.
+  documentUrl     String    // URL to the storage bucket
+  
+  status          KYCStatus @default(PENDING)
+  rejectionReason String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Property {
+  id            String    @id @default(cuid())
+  title         String
+  description   String
+  price         Float
+  area          Float     // in sqft or acres
+  
+  type          PropertyType
+  status        PropertyStatus @default(DRAFT)
+  
+  // Location
+  address       String
+  latitude      Float?
+  longitude     Float?
+  
+  // Relations
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id])
+  images        PropertyImage[]
+
+  rejectionReason String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model PropertyImage {
+  id            String    @id @default(cuid())
+  url           String
+  
+  propertyId    String
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+}
