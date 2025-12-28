@@ -3,6 +3,7 @@ import SearchFilters from "@/components/property/search-filters";
 import PropertyCard from "@/components/property/property-card";
 import { PropertyType } from "@prisma/client";
 import NavControls from "@/components/layout/nav-controls";
+import { auth } from "@/auth";
 
 export default async function SearchPage({
     searchParams,
@@ -10,6 +11,8 @@ export default async function SearchPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     const resolvedSearchParams = await searchParams;
+    const session = await auth();
+    const userId = session?.user?.id;
 
     const q = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : undefined;
     const type = typeof resolvedSearchParams.type === "string" && Object.values(PropertyType).includes(resolvedSearchParams.type as PropertyType)
@@ -45,6 +48,7 @@ export default async function SearchPage({
         where,
         include: {
             images: true,
+            ...(userId ? { shortlists: { where: { userId } } } : {}),
         },
         orderBy: {
             createdAt: "desc",

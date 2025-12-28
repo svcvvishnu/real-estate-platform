@@ -2,7 +2,7 @@ import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, Home, Search, Heart } from "lucide-react";
 
 export default async function DashboardPage() {
     const session = await auth();
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
             kycProfile: true,
             properties: {
                 orderBy: { createdAt: 'desc' },
-                include: { images: true }
+                include: { images: true, updates: true }
             }
         }
     });
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
                 <div className="px-4 py-6 sm:px-0">
 
                     {/* Navigation Tiles */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <Link
                             href="/search"
                             className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow group border border-transparent hover:border-blue-500"
@@ -82,6 +82,21 @@ export default async function DashboardPage() {
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-900">List Property</h3>
                                     <p className="text-sm text-gray-500">Sell or lease your estate</p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/shortlist"
+                            className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow group border border-transparent hover:border-pink-500"
+                        >
+                            <div className="flex items-center space-x-4">
+                                <div className="bg-pink-100 p-3 rounded-lg group-hover:bg-pink-600 group-hover:text-white transition-colors text-pink-600">
+                                    <Heart className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Shortlisted</h3>
+                                    <p className="text-sm text-gray-500">Your favorite properties</p>
                                 </div>
                             </div>
                         </Link>
@@ -150,7 +165,7 @@ export default async function DashboardPage() {
                                 </div>
                             ) : (
                                 <ul className="divide-y divide-gray-200">
-                                    {user.properties.map((property) => (
+                                    {user.properties.map((property: any) => (
                                         <li key={property.id} className="py-4 flex justify-between">
                                             <div className="flex">
                                                 {property.images[0] ? (
@@ -164,15 +179,26 @@ export default async function DashboardPage() {
                                                     <p className="text-xs text-gray-400">{property.address}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col items-end justify-center">
+                                            <div className="flex flex-col items-end justify-center space-y-2">
                                                 <span className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full 
                                             ${property.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
                                                         property.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                                                             property.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
                                                     {property.status}
                                                 </span>
+                                                {property.updates?.status === 'PENDING' && (
+                                                    <span className="inline-flex px-2 text-[10px] font-semibold leading-5 rounded-full bg-blue-100 text-blue-800">
+                                                        PENDING UPDATE
+                                                    </span>
+                                                )}
+                                                <Link
+                                                    href={`/dashboard/edit/${property.id}`}
+                                                    className="text-xs text-blue-600 hover:text-blue-500 font-medium"
+                                                >
+                                                    Edit Details
+                                                </Link>
                                                 {property.status === 'REJECTED' && (
-                                                    <p className="text-xs text-red-500 mt-1">{property.rejectionReason}</p>
+                                                    <p className="text-xs text-red-500">{property.rejectionReason}</p>
                                                 )}
                                             </div>
                                         </li>

@@ -50,6 +50,12 @@ model User {
 
   kycProfile    KYCProfile?
   properties    Property[]
+  
+  verifiedProperties Property[] @relation("VerifiedBy")
+  verifiedKYCs       KYCProfile[] @relation("VerifiedBy")
+  verifiedUpdates    PropertyUpdate[] @relation("VerifiedBy")
+  
+  shortlists         Shortlist[]
 }
 
 model KYCProfile {
@@ -64,6 +70,9 @@ model KYCProfile {
   
   status          KYCStatus @default(PENDING)
   rejectionReason String?
+  
+  verifiedById    String?
+  verifiedBy      User?     @relation("VerifiedBy", fields: [verifiedById], references: [id])
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -88,8 +97,37 @@ model Property {
   ownerId       String
   owner         User      @relation(fields: [ownerId], references: [id])
   images        PropertyImage[]
+  updates       PropertyUpdate?
 
   rejectionReason String?
+  
+  verifiedById    String?
+  verifiedBy      User?     @relation("VerifiedBy", fields: [verifiedById], references: [id])
+
+  views           Int       @default(0)
+  shortlists      Shortlist[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model PropertyUpdate {
+  id            String    @id @default(cuid())
+  propertyId    String    @unique
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  title         String
+  description   String
+  price         Float
+  area          Float
+  type          PropertyType
+  address       String
+
+  status        KYCStatus @default(PENDING) // Reusing enum for simplicity: PENDING, APPROVED, REJECTED
+  rejectionReason String?
+
+  verifiedById    String?
+  verifiedBy      User?     @relation("VerifiedBy", fields: [verifiedById], references: [id])
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -103,4 +141,15 @@ model PropertyImage {
   property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   createdAt     DateTime  @default(now())
+}
+
+model Shortlist {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, propertyId])
 }

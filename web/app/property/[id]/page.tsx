@@ -2,12 +2,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Ruler, Home, Phone, User } from "lucide-react";
+import { ArrowLeft, MapPin, Ruler, Home, Phone, User, Eye } from "lucide-react";
 import NavControls from "@/components/layout/nav-controls";
+import ShortlistButton from "@/components/property/shortlist-button";
 
 export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const session = await auth();
+    const userId = session?.user?.id;
 
     const property = await prisma.property.findUnique({
         where: { id: id },
@@ -19,8 +21,17 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                     mobile: true,
                 },
             },
+            ...(userId ? { shortlists: { where: { userId } } } : {}),
         },
     });
+
+    if (property && property.status === "APPROVED") {
+        // Increment views in background (don't await to avoid slowing down page load)
+        prisma.property.update({
+            where: { id: id },
+            data: { views: { increment: 1 } }
+        }).catch(err => console.error("Failed to increment views:", err));
+    }
 
     if (!property) {
         notFound();
@@ -76,15 +87,27 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
-                                <div className="flex items-center text-gray-600">
-                                    <MapPin className="w-4 h-4 mr-1" />
-                                    {property.address}
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex items-center text-gray-600">
+                                        <MapPin className="w-4 h-4 mr-1" />
+                                        {property.address}
+                                    </div>
+                                    <div className="flex items-center text-gray-500 text-sm">
+                                        <Eye className="w-4 h-4 mr-1" />
+                                        {property.views + (property.status === "APPROVED" ? 1 : 0)} views
+                                    </div>
                                 </div>
                             </div>
-                            <div className="mt-4 md:mt-0 text-right">
-                                <div className="text-3xl font-bold text-blue-900">{formattedPrice}</div>
-                                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
-                                    {property.type}
+                            <div className="mt-4 md:mt-0 flex items-center gap-4">
+                                <ShortlistButton
+                                    propertyId={property.id}
+                                    initialIsShortlisted={!!(property as any).shortlists?.length}
+                                />
+                                <div className="text-right">
+                                    <div className="text-3xl font-bold text-blue-900">{formattedPrice}</div>
+                                    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
+                                        {property.type}
+                                    </div>
                                 </div>
                             </div>
                         </div>

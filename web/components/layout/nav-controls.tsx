@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home, Heart } from "lucide-react";
 import Link from "next/link";
 
 export default function NavControls() {
@@ -22,6 +22,13 @@ export default function NavControls() {
             >
                 <Home className="mr-1 h-4 w-4" />
                 Dashboard
+            </Link>
+            <Link
+                href="/dashboard/shortlist"
+                className="flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 transition"
+            >
+                <Heart className="mr-1 h-4 w-4" />
+                Shortlisted
             </Link>
         </div>
     );
