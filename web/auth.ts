@@ -46,11 +46,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         signIn: "/login",
     },
     callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.role = (user as any).role
+            }
+            return token
+        },
         async session({ session, token }) {
             // Add user ID and role to session
             if (token.sub && session.user) {
                 // We'll need to extend the type definition later, casting for now
                 (session.user as any).id = token.sub
+                    ; (session.user as any).role = token.role
             }
             return session
         }
